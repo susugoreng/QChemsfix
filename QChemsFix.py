@@ -213,6 +213,7 @@ elif selected_game == "Kuis Senyawa Organik":
         {"q":"Apa nama senyawa CH3COOCH3?","a":"Metil asetat"},
         {"q":"Apa nama senyawa dengan rumus CH3COOH?","a":"Asam asetat"},
         {"q":"Apa nama senyawa CH3Cl?","a":"Metilklorida"}
+        {"q":"Apa nama senyawa C6H6CH2CH3?","a":"Etil benzena"}
     ]
 
     if "org_score" not in st.session_state:
