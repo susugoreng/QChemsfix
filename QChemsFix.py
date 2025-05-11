@@ -207,7 +207,7 @@ elif selected_game == "Kuis Senyawa Organik":
         {"q":"Apa nama senyawa CH3CH2COCH3?","a":"Aseton"},
         {"q":"Apa nama senyawa dengan rumus CH3(CH2)2NH?","a":"Propilamina"},
         {"q":"Apa nama senyawa C6H5CH2CH3?","a":"Etilbenzen"},
-        {"q":"Apa nama senyawa HCOOH?","a":"Asam metanoatr"},
+        {"q":"Apa nama senyawa HCOOH?","a":"Asam metanoat"},
         {"q":"Apa nama senyawa dengan rumus CH3CONH2?","a":"Etanamida"},
         {"q":"Apa nama senyawa C3H7COOH?","a":"Asam butirat"},
         {"q":"Apa nama senyawa CH3COOCH3?","a":"Metil asetat"},
