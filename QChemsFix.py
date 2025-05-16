@@ -90,6 +90,7 @@ if selected_game == "-- Pilih Game --":
         <h1 style='color: #ffffff; font-size: 48px; text-shadow: 0 0 10px #ffffff, 0 0 20px #00e6e6;'>Selamat datang di QChems</h1>
         <h3 style='color: #f0f0f0; text-shadow: 0 0 5px #00ffff;'>Aplikasi kuis interaktif seputar Tabel Periodik & Senyawa Organik.</h3>
         <p style='color: #dddddd;'>Silakan pilih game dari menu di sebelah kiri untuk memulai.</p>
+        <p style='color: #dddddd;'>saat menginput jawaban, pengguna dipersilakan menggunakan kapital/non kapital</p>
     </div>
     """, unsafe_allow_html=True)
     st.stop()
