@@ -17,7 +17,6 @@ st.markdown("""
 
 # --- Styling background berdasarkan halaman ---
 if selected_game == "-- Pilih Game --":
-    # Tampilan Selamat Datang
     st.markdown("""
     <style>
     [data-testid="stAppViewContainer"] {
@@ -31,7 +30,6 @@ if selected_game == "-- Pilih Game --":
     </style>
     """, unsafe_allow_html=True)
 else:
-    # Styling gradient hanya untuk halaman game
     st.markdown("""
     <style>
     .stApp {
@@ -90,14 +88,22 @@ if selected_game == "-- Pilih Game --":
         <h1 style='color: #ffffff; font-size: 48px; text-shadow: 0 0 10px #ffffff, 0 0 20px #00e6e6;'>Selamat datang di QChems</h1>
         <h3 style='color: #f0f0f0; text-shadow: 0 0 5px #00ffff;'>Aplikasi kuis interaktif seputar Tabel Periodik & Senyawa Organik.</h3>
         <p style='color: #dddddd;'>Silakan pilih game dari menu di sebelah kiri untuk memulai.</p>
-        <p style='color: #dddddd;'>saat menginput jawaban, pengguna dipersilakan menggunakan kapital/non kapital.</p>
     </div>
     """, unsafe_allow_html=True)
     st.stop()
 
 # === GAME 1: Kuis Tabel Periodik ===
 if selected_game == "Kuis Tabel Periodik":
-    st.title("🧪 Kuis Tabel Periodik Unsur")
+    if "pt_started" not in st.session_state:
+        st.session_state.pt_started = False
+
+    if not st.session_state.pt_started:
+        st.title("🧪 Kuis Tabel Periodik Unsur")
+        st.image("https://i.imgur.com/Kcgjoc5.png", caption="Tabel Periodik Unsur", use_container_width=True)
+        if st.button("Mulai Kuis"):
+            st.session_state.pt_started = True
+        st.stop()
+
     NUM_PT = 5
     periodic_table = [
         {"name":"hidrogen","symbol":"H","number":1,"group":1,"period":1},
@@ -125,6 +131,12 @@ if selected_game == "Kuis Tabel Periodik":
         {"name":"nikel","symbol":"Ni","number":28,"group":10,"period":4},
     ]
 
+    group_to_iupac = {
+        1: "1A", 2: "2A", 3: "3B", 4: "4B", 5: "5B", 6: "6B", 7: "7B",
+        8: "8B", 9: "8B", 10: "8B", 11: "1B", 12: "2B", 13: "3A", 14: "4A",
+        15: "5A", 16: "6A", 17: "7A", 18: "8A"
+    }
+
     if "pt_score" not in st.session_state:
         st.session_state.pt_score = 0
         st.session_state.pt_index = 0
@@ -149,27 +161,35 @@ if selected_game == "Kuis Tabel Periodik":
         if q["type"] == "symbol":
             text = f"🧪 Apa simbol dari unsur {e['name'].capitalize()}?"
             ans = e["symbol"]
+            correct = lambda u: u.strip().lower() == ans.lower()
         elif q["type"] == "number":
             text = f"🔢 Berapa nomor atom dari {e['name'].capitalize()}?"
             ans = str(e["number"])
+            correct = lambda u: u.strip() == ans
         elif q["type"] == "group":
             text = f"📚 Golongan berapa unsur {e['name'].capitalize()}?"
             ans = str(e["group"])
+            alt_ans = group_to_iupac.get(e["group"], "")
+            correct = lambda u: u.strip().lower() in [ans.lower(), alt_ans.lower()]
         else:
             text = f"🕏 Periode berapa unsur {e['name'].capitalize()}?"
             ans = str(e["period"])
+            correct = lambda u: u.strip() == ans
 
         st.markdown('<div class="question-card">', unsafe_allow_html=True)
         st.subheader(f"Soal #{st.session_state.pt_index+1} dari {NUM_PT}")
         user = st.text_input(text, key=f"pt_in_{st.session_state.pt_index}")
 
         if st.button("Kirim Jawaban", key=f"pt_sub_{st.session_state.pt_index}") and not st.session_state.pt_answered:
-            if user.strip().lower() == ans.lower():
+            if correct(user):
                 st.session_state.pt_score += 1
                 st.session_state.pt_feedback = "✅ Jawaban Benar!"
                 st.balloons()
             else:
-                st.session_state.pt_feedback = f"❌ Salah. Jawaban benar: {ans}"
+                feedback = f"❌ Salah. Jawaban benar: {ans}"
+                if q["type"] == "group" and alt_ans:
+                    feedback += f" (atau {alt_ans})"
+                st.session_state.pt_feedback = feedback
             st.session_state.pt_answered = True
 
         st.write(st.session_state.pt_feedback)
@@ -187,12 +207,110 @@ if selected_game == "Kuis Tabel Periodik":
     else:
         st.success(f"🎉 Kuis selesai! Skor akhir: {st.session_state.pt_score}/{NUM_PT}")
         if st.button("🔁 Ulangi Kuis"):
-            for k in ["pt_score", "pt_index", "pt_q", "pt_feedback", "pt_answered"]:
+            for k in ["pt_score", "pt_index", "pt_q", "pt_feedback", "pt_answered", "pt_started"]:
                 del st.session_state[k]
 
 # === GAME 2: Kuis Senyawa Organik ===
 elif selected_game == "Kuis Senyawa Organik":
-    st.title("🧪 Kuis Senyawa Organik")
+    st.title("🧪 Kuis Senyawa Organik") 
+    st.header("Pengantar Senyawa Organik")
+
+    st.markdown("""
+    ## I. Hidrokarbon
+
+    Senyawa organik yang hanya mengandung atom karbon (C) dan hidrogen (H).
+
+    **Contoh:**
+    1. **Metana (CH₄):**  
+       Hidrokarbon paling sederhana, termasuk golongan alkana. Gas utama dalam gas alam.  
+    2. **Benzena (C₆H₆):**  
+       Senyawa aromatik, memiliki cincin heksagonal dengan ikatan rangkap terkonjugasi.
+
+    ## II. Gugus Fungsi dan Golongan Senyawa Organik
+
+    Gugus fungsi adalah atom atau kelompok atom spesifik dalam molekul yang bertanggung jawab atas karakteristik reaksi kimia senyawa tersebut.
+
+    ### A. Alkohol  
+    Gugus Fungsi: Hidroksil (-OH)  
+    Rumus Umum: R-OH (dimana R adalah gugus alkil)
+
+    **Contoh:**  
+    1. Etanol (C₂H₅OH): Alkohol yang umum ditemukan dalam minuman beralkohol.  
+    2. Propanol (CH₃(CH₂)₂OH): Alkohol dengan 3 atom karbon.  
+    3. Butanol (CH₃(CH₂)₃OH): Alkohol dengan 4 atom karbon.  
+    4. Pentanol (C₅H₁₁OH): Alkohol dengan 5 atom karbon.
+
+    ### B. Asam Karboksilat  
+    Gugus Fungsi: Karboksil (-COOH)  
+    Rumus Umum: R-COOH
+
+    **Contoh:**  
+    1. Asam Asetat (CH₃COOH): Asam yang memberikan rasa asam pada cuka.  
+    2. Asam Propionat (CH₃CH₂COOH): Asam karboksilat dengan 3 atom karbon.  
+    3. Asam Butirat (C₃H₇COOH): Asam karboksilat dengan 4 atom karbon.  
+    4. Asam Metanoat (HCOOH): Asam format, asam karboksilat paling sederhana.
+
+    ### C. Keton  
+    Gugus Fungsi: Karbonil (>C=O) yang terikat pada dua gugus alkil.  
+    Rumus Umum: R-CO-R'
+
+    **Contoh:**  
+    Aseton (CH₃COCH₃): Pelarut yang umum digunakan, contoh keton paling sederhana.
+
+    ### D. Amina  
+    Gugus Fungsi: Amino (-NH₂)  
+    Rumus Umum: R-NH₂ (amina primer)
+
+    **Contoh:**  
+    1. Metilamina (CH₃NH₂): Amina primer paling sederhana.  
+    2. Propilamina (CH₃(CH₂)₂NH₂): Amina primer dengan 3 atom karbon.
+
+    ### E. Ester  
+    Gugus Fungsi: Alkoksi-karbonil (-COOR')  
+    Rumus Umum: R-COOR'
+
+    **Contoh:**  
+    Metil asetat (CH₃COOCH₃): Ester yang memberikan aroma buah-buahan.
+
+    ### F. Amida  
+    Gugus Fungsi: Karbonil yang terikat pada gugus amino (-CONH₂)  
+    Rumus Umum: R-CONH₂
+
+    **Contoh:**  
+    Etanamida (CH₃CONH₂): Amida paling sederhana yang berasal dari asam asetat.
+
+    ## III. Senyawa Turunan Halogen (Haloalkana)
+
+    Definisi: Senyawa organik di mana satu atau lebih atom hidrogen digantikan oleh atom halogen (F, Cl, Br, I).
+
+    **Contoh:**  
+    Metilklorida (CH₃Cl): Turunan metana dengan satu atom hidrogen digantikan oleh klorin.
+
+    ## IV. Senyawa Aromatik Terganti
+
+    Definisi: Senyawa benzena di mana satu atau lebih atom hidrogen pada cincin benzena digantikan oleh gugus lain.
+
+    **Contoh:**  
+    Etilbenzena (C₆H₅CH₂CH₃ atau C₆H₅C₂H₅): Benzena dengan satu gugus etil (-CH₂CH₃) terikat.
+
+    ## V. Karbohidrat (Contoh Umum)
+
+    Definisi: Senyawa organik yang mengandung karbon, hidrogen, dan oksigen, biasanya dengan rumus umum (CH₂O)n. Sumber energi utama bagi makhluk hidup.
+
+    **Contoh:**  
+    Glukosa (C₆H₁₂O₆): Monosakarida, gula sederhana yang merupakan unit dasar banyak karbohidrat kompleks.
+
+    ---
+
+    **Referensi:**  
+    Irawan, C., & Utami, A. (2024). *Pengantar kimia organik*. Yogyakarta: Deepublish.
+    """)
+    if st.button("Mulai Kuis"):
+            st.session_state.pt_started = True
+    st.stop()
+
+    # Setelah ini baru panggil fungsi kuis atau tampilkan soal kuis
+
     organic_questions = [
         {"q":"Apa rumus molekul dari metana?","a":"CH4"},
         {"q":"Apa gugus fungsi dari alkohol?","a":"OH"},
@@ -200,21 +318,20 @@ elif selected_game == "Kuis Senyawa Organik":
         {"q":"Apa nama senyawa dengan rumus C2H5OH?","a":"Etanol"},
         {"q":"Apa nama senyawa C6H6?","a":"Benzena"},
         {"q":"Apa nama senyawa CH3CH2COOH?","a":"Asam propionat"},
-        {"q":"Apa nama senyawa dengan rumus CH3(CH2)2OH?","a":"Propanol"},
+        {"q":"Apa nama senyawa dengan rumus C3H7OH?","a":"Propanol"},
         {"q":"Apa nama senyawa yang memiliki rumus C6H12O6?","a":"Glukosa"},
-        {"q":"Apa nama senyawa CH3(CH2)3OH?","a":"Butanol"},
+        {"q":"Apa nama senyawa C4H9OH?","a":"Butanol"},
         {"q":"Apa nama senyawa CH3NH2?","a":"Metilamina"},
         {"q":"Apa nama senyawa dengan rumus C5H10O?","a":"Pentanol"},
         {"q":"Apa nama senyawa CH3CH2COCH3?","a":"Aseton"},
-        {"q":"Apa nama senyawa dengan rumus CH3(CH2)2NH?","a":"Propilamina"},
-        {"q":"Apa nama senyawa C6H5CH2CH3?","a":"Etilbenzen"},
-        {"q":"Apa nama senyawa HCOOH?","a":"Asam metanoat"},
-        {"q":"Apa nama senyawa dengan rumus CH3CONH2?","a":"Etanamida"},
-        {"q":"Apa nama senyawa C3H7COOH?","a":"Asam butirat"},
+        {"q":"Apa nama senyawa dengan rumus C7H8?","a":"Toluena"},
+        {"q":"Apa nama senyawa C8H10?","a":"Etilbenzen"},
+        {"q":"Apa nama senyawa C10H12O2?","a":"Asam benzoat metil ester"},
+        {"q":"Apa nama senyawa dengan rumus C3H6O?","a":"Asetaldehida"},
+        {"q":"Apa nama senyawa C4H8O2?","a":"Asam butirat"},
         {"q":"Apa nama senyawa CH3COOCH3?","a":"Metil asetat"},
-        {"q":"Apa nama senyawa dengan rumus CH3COOH?","a":"Asam asetat"},
-        {"q":"Apa nama senyawa CH3Cl?","a":"Metilklorida"},
-        {"q":"Apa nama senyawa C6H6CH2CH3?","a":"Etil benzena"}
+        {"q":"Apa nama senyawa dengan rumus C2H4O2?","a":"Asam asetat"},
+        {"q":"Apa nama senyawa C9H12O?","a":"Fenilpropanol"}
     ]
 
     if "org_score" not in st.session_state:
